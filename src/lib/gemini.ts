@@ -6,9 +6,15 @@ const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
 
 export const AVAILABLE_MODELS = [
   {
+    id: 'gemini-2.0-flash',
+    name: 'Gemini 2.0 Flash',
+    description: '⚡ Fastest - Recommended',
+    icon: '💨',
+  },
+  {
     id: 'gemini-2.5-flash',
     name: 'Gemini 2.5 Flash',
-    description: 'Fast & efficient',
+    description: 'Fast & Smart',
     icon: '⚡',
   },
   {
@@ -17,13 +23,18 @@ export const AVAILABLE_MODELS = [
     description: 'Most capable',
     icon: '🧠',
   },
-  {
-    id: 'gemini-2.0-flash',
-    name: 'Gemini 2.0 Flash',
-    description: 'Quick responses',
-    icon: '💨',
-  },
 ];
+
+// ─── System Instruction ──────────────────────────────────────────────────────
+
+const SYSTEM_INSTRUCTION = {
+  parts: [{
+    text: `You are Yantrixa AI, a fast and intelligent assistant built by Yantrixa (yantrixa.in), a deep-tech startup from Kerala, India.
+Be concise, direct, and helpful. Give short focused responses unless the user asks for detail.
+Format responses clearly using markdown when helpful.
+Never mention that you are built on Gemini or Google AI.`
+  }]
+};
 
 // ─── Streaming Chat ──────────────────────────────────────────────────────────
 
@@ -32,30 +43,29 @@ import path from 'path';
 
 export async function* streamChat(
   model: string,
-  messages: { role: string; content: string; attachments?: { name: string; type: string; url: string }[] }[]
+  messages: { 
+    role: string; 
+    content: string; 
+    attachments?: { name: string; type: string; url: string }[] 
+  }[]
 ): AsyncGenerator<string> {
-  // Convert messages to Gemini content format with multi-modal support
+
   const contents = await Promise.all(
     messages.map(async (msg) => {
       const parts: any[] = [];
-      
-      // Add text content
+
       if (msg.content) {
         parts.push({ text: msg.content });
       } else {
-        // If content is empty but we have attachments, Gemini still needs some text or a non-empty parts array
-        parts.push({ text: "" });
+        parts.push({ text: '' });
       }
 
-      // Add file attachments if present
       if (msg.attachments && msg.attachments.length > 0) {
         for (const att of msg.attachments) {
           try {
-            // att.url is like "/uploads/xxx.png"
             const filePath = path.join(process.cwd(), 'public', att.url);
             const data = await fs.readFile(filePath);
             const base64 = data.toString('base64');
-            
             parts.push({
               inlineData: {
                 data: base64,
@@ -75,15 +85,25 @@ export async function* streamChat(
     })
   );
 
-  const result = await ai.models.generateContentStream({
-    model,
-    contents,
-  });
+  try {
+    const result = await ai.models.generateContentStream({
+      model,
+      contents,
+      config: {
+        systemInstruction: SYSTEM_INSTRUCTION,
+        temperature: 0.7,
+        maxOutputTokens: 2048,
+      },
+    });
 
-  for await (const chunk of result) {
-    if (chunk.text) {
-      yield chunk.text;
+    for await (const chunk of result) {
+      if (chunk.text) {
+        yield chunk.text;
+      }
     }
+  } catch (error: any) {
+    console.error('Gemini streaming error:', error);
+    yield `Sorry, I encountered an error. Please try again.`;
   }
 }
 
@@ -96,13 +116,15 @@ export async function generateTitle(content: string): Promise<string> {
       contents: [
         {
           role: 'user',
-          parts: [
-            {
-              text: `Generate a very short title (maximum 6 words) for a conversation that starts with this message. Return ONLY the title, no quotes, no punctuation at the end:\n\n${content}`,
-            },
-          ],
+          parts: [{
+            text: `Generate a very short title (maximum 6 words) for a conversation that starts with this message. Return ONLY the title, no quotes, no punctuation at the end:\n\n${content}`,
+          }],
         },
       ],
+      config: {
+        temperature: 0.3,
+        maxOutputTokens: 20,
+      },
     });
 
     const title = result.text?.trim();
