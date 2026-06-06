@@ -4,15 +4,8 @@ import { getConversations, createConversation } from '@/lib/store';
 
 export async function GET() {
   try {
-    const session = await auth();
-    if (!session?.user?.id) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
-    const conversations = await getConversations(session.user.id);
+    const userId = "default-user";
+    const conversations = await getConversations(userId);
     return NextResponse.json({ conversations });
   } catch (error) {
     console.error('Error fetching conversations:', error);
@@ -25,19 +18,12 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await auth();
-    if (!session?.user?.id) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
+    const userId = "default-user";
     const body = await request.json();
     const { title, model } = body;
 
     const conversation = await createConversation(
-      session.user.id,
+      userId,
       title || 'New Conversation',
       model || 'gemini-2.5-flash'
     );

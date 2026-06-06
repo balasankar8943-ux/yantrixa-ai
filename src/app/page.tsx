@@ -89,12 +89,9 @@ export default function LandingPage() {
         </p>
 
         <div className="hero-actions">
-          <Link href="/register" className="btn-primary">
-            <span>Get Started</span>
+          <Link href="/chat" className="btn-primary">
+            <span>Start Chatting</span>
             <ArrowRight size={18} />
-          </Link>
-          <Link href="/login" className="btn-secondary">
-            <span>Sign In</span>
           </Link>
         </div>
       </section>

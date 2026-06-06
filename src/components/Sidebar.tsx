@@ -65,7 +65,7 @@ function groupConversationsByDate(conversations: Conversation[]): GroupedConvers
 export default function Sidebar() {
   const router = useRouter();
   const pathname = usePathname();
-  const { data: session } = useSession();
+  const session = { user: { name: 'Guest User', email: 'guest@yantrixa.in' } };
 
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -674,34 +674,6 @@ export default function Sidebar() {
             <Settings size={18} />
           </button>
 
-          {/* Logout */}
-          <button
-            onClick={() => signOut({ callbackUrl: '/login' })}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: '32px',
-              height: '32px',
-              borderRadius: 'var(--radius-sm)',
-              border: 'none',
-              background: 'transparent',
-              color: 'var(--text-muted)',
-              cursor: 'pointer',
-              transition: 'all var(--transition-fast)',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
-              e.currentTarget.style.color = '#ef4444';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'transparent';
-              e.currentTarget.style.color = 'var(--text-muted)';
-            }}
-            aria-label="Log out"
-          >
-            <LogOut size={18} />
-          </button>
         </div>
 
         {/* Built by Yantrixa.in */}

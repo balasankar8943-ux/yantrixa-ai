@@ -1,24 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/auth';
 import {
   getConversation,
   updateConversation,
   deleteConversation,
 } from '@/lib/store';
 
+const userId = "default-user";
+
 export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await auth();
-    if (!session?.user?.id) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
     const { id } = await params;
     const conversation = await getConversation(id);
 
@@ -29,8 +22,8 @@ export async function GET(
       );
     }
 
-    // Ensure user owns this conversation
-    if (conversation.userId !== session.user.id) {
+    // Ensure conversation belongs to our default user
+    if (conversation.userId !== userId) {
       return NextResponse.json(
         { error: 'Forbidden' },
         { status: 403 }
@@ -47,51 +40,66 @@ export async function GET(
   }
 }
 
+async function handleUpdate(
+  request: NextRequest,
+  id: string
+) {
+  const existingConversation = await getConversation(id);
+
+  if (!existingConversation) {
+    return NextResponse.json(
+      { error: 'Conversation not found' },
+      { status: 404 }
+    );
+  }
+
+  if (existingConversation.userId !== userId) {
+    return NextResponse.json(
+      { error: 'Forbidden' },
+      { status: 403 }
+    );
+  }
+
+  const body = await request.json();
+  const { title } = body;
+
+  if (!title || typeof title !== 'string' || title.trim().length === 0) {
+    return NextResponse.json(
+      { error: 'Title is required' },
+      { status: 400 }
+    );
+  }
+
+  const updated = await updateConversation(id, {
+    title: title.trim(),
+  });
+
+  return NextResponse.json({ conversation: updated });
+}
+
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await auth();
-    if (!session?.user?.id) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
     const { id } = await params;
-    const existingConversation = await getConversation(id);
+    return await handleUpdate(request, id);
+  } catch (error) {
+    console.error('Error updating conversation:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
 
-    if (!existingConversation) {
-      return NextResponse.json(
-        { error: 'Conversation not found' },
-        { status: 404 }
-      );
-    }
-
-    if (existingConversation.userId !== session.user.id) {
-      return NextResponse.json(
-        { error: 'Forbidden' },
-        { status: 403 }
-      );
-    }
-
-    const body = await request.json();
-    const { title } = body;
-
-    if (!title || typeof title !== 'string' || title.trim().length === 0) {
-      return NextResponse.json(
-        { error: 'Title is required' },
-        { status: 400 }
-      );
-    }
-
-    const updated = await updateConversation(id, {
-      title: title.trim(),
-    });
-
-    return NextResponse.json({ conversation: updated });
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    return await handleUpdate(request, id);
   } catch (error) {
     console.error('Error updating conversation:', error);
     return NextResponse.json(
@@ -106,14 +114,6 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await auth();
-    if (!session?.user?.id) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
     const { id } = await params;
     const existingConversation = await getConversation(id);
 
@@ -124,7 +124,7 @@ export async function DELETE(
       );
     }
 
-    if (existingConversation.userId !== session.user.id) {
+    if (existingConversation.userId !== userId) {
       return NextResponse.json(
         { error: 'Forbidden' },
         { status: 403 }

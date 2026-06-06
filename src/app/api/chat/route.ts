@@ -9,15 +9,6 @@ import { streamChat, generateTitle } from '@/lib/gemini';
 
 export async function POST(request: NextRequest) {
   try {
-    // Validate auth session
-    const session = await auth();
-    if (!session?.user?.id) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
     const body = await request.json();
     const { conversationId, message, model, attachments } = body;
 
@@ -29,7 +20,7 @@ export async function POST(request: NextRequest) {
     }
 
     const selectedModel = model || 'gemini-2.5-flash';
-    const userId = session.user.id;
+    const userId = "default-user";
     let activeConversationId = conversationId;
 
     // If no conversationId, create a new conversation

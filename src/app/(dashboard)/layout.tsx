@@ -11,55 +11,7 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { status } = useSession();
-  const router = useRouter();
   const mobileToggle = useSidebarMobileToggle();
-
-  useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.replace('/login');
-    }
-  }, [status, router]);
-
-  if (status === 'loading') {
-    return (
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          height: '100vh',
-          width: '100vw',
-          background: '#050508',
-          color: 'var(--text-primary)',
-          gap: '16px',
-        }}
-      >
-        <div className="animate-float" style={{ width: 64, height: 64 }}>
-          <img
-            src="/images/logo.png"
-            alt="Yantrixa AI"
-            style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-          />
-        </div>
-        <div
-          style={{
-            width: '40px',
-            height: '40px',
-            borderRadius: '50%',
-            border: '3px solid rgba(139, 92, 246, 0.1)',
-            borderTopColor: 'var(--accent-primary)',
-            animation: 'spin 1s linear infinite',
-          }}
-        />
-      </div>
-    );
-  }
-
-  if (status === 'unauthenticated') {
-    return null;
-  }
 
   return (
     <div
