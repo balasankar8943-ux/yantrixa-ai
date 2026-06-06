@@ -1,0 +1,13 @@
+[
+  {
+    "id": "6641f51e-e940-40b7-828d-f6fa67cdca0e",
+    "name": "Bala Sankar",
+    "email": "balasankar8943@gmail.com",
+    "passwordHash": "$2b$12$X93HpyR6lsh9v8coeRfyk.Y3gY.7MxIADwKa6PyEKqx.1ll6CnSaW",
+    "createdAt": "2026-06-06T10:22:57.642Z",
+    "settings": {
+      "theme": "system",
+      "defaultModel": "gemini-2.5-flash"
+    }
+  }
+]

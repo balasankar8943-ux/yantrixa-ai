@@ -1,0 +1,42 @@
+[
+  {
+    "id": "cc19c7d9-1ecd-4f54-8fc2-35b23f07570c",
+    "userId": "6641f51e-e940-40b7-828d-f6fa67cdca0e",
+    "title": "New Conversation",
+    "model": "gemini-2.5-flash",
+    "messages": [
+      {
+        "id": "f314e474-5f5a-4e0a-8076-442bea8d2ea6",
+        "role": "user",
+        "content": "prime minister of india",
+        "model": "gemini-2.5-flash",
+        "attachments": [],
+        "timestamp": "2026-06-06T10:23:51.051Z"
+      },
+      {
+        "id": "f66e4cff-841b-4f3f-aad7-3ddf82f838f0",
+        "role": "assistant",
+        "content": "The current Prime Minister of India is **Narendra Modi**.",
+        "model": "gemini-2.5-flash",
+        "timestamp": "2026-06-06T10:23:52.771Z"
+      },
+      {
+        "id": "882d1418-e300-424d-8681-7908cb73e2ef",
+        "role": "user",
+        "content": "his info",
+        "model": "gemini-2.5-flash",
+        "attachments": [],
+        "timestamp": "2026-06-06T10:24:04.593Z"
+      },
+      {
+        "id": "478b5a72-e9c0-4408-9844-f56530a1e41c",
+        "role": "assistant",
+        "content": "Here's some key information about **Narendra Damodardas Modi**, the current Prime Minister of India:\n\n**1. Current Role & Tenure:**\n*   **Prime Minister of India:** He is the 14th and current Prime Minister of India.\n*   **Took Office:** First sworn in on May 26, 2014.\n*   **Re-elected:** Led the Bharatiya Janata Party (BJP) to a larger majority in the 2019 general elections, and was sworn in for a second consecutive term on May 30, 2019. He began his third term in June 2024 after the BJP-led NDA coalition won the general election.\n\n**2. Political Party:**\n*   **Bharatiya Janata Party (BJP):** He is a prominent leader of the BJP, which is one of the two major political parties in India (the other being the Indian National Congress).\n\n**3. Prior Political Experience:**\n*   **Chief Minister of Gujarat:** Before becoming Prime Minister, Modi served as the Chief Minister of Gujarat for over 12 years, from 2001 to 2014, making him the longest-serving Chief Minister of the state.\n\n**4. Ideology & Political Background:**\n*   **Hindu Nationalism (Hindutva):** Modi is closely associated with Hindu nationalism, an ideology espoused by the RSS (Rashtriya Swayamsevak Sangh).\n*   **RSS:** He has been a long-standing member of the RSS, a right-wing Hindu nationalist paramilitary volunteer organization, since his youth.\n\n**5. Key Policies & Initiatives (During his PM tenure):**\n*   **Economic Reforms:**\n    *   **\"Make in India\":** An initiative to encourage manufacturing in India.\n    *   **Demonetisation (2016):** Withdrawal of 500 and 1000 rupee notes from circulation.\n    *   **Goods and Services Tax (GST):** Implementation of a nationwide indirect tax system.\n*   **Social & Welfare Schemes:**\n    *   **\"Swachh Bharat Abhiyan\" (Clean India Mission):** A nationwide sanitation campaign.\n    *   **\"Pradhan Mantri Jan Dhan Yojana\":** Financial inclusion scheme for opening bank accounts.\n    *   **\"Ayushman Bharat\":** A national health protection scheme.\n*   **Infrastructure & Digital India:**\n    *   Significant investments in roads, railways, and digital infrastructure.\n    *   **\"Digital India\":** Initiative to make government services available electronically and improve internet connectivity.\n*   **Foreign Policy:** An active foreign policy focused on enhancing India's global standing and strengthening ties with various countries.\n\n**6. Personal Background:**\n*   **Birth:** Born on September 17, 1950, in Vadnagar, Bombay State (present-day Gujarat), India.\n*   **Humble Beginnings:** Comes from a humble background, with his father running a tea stall.\n*   **Education:** Holds a master's degree in political science from Gujarat University.\n\n**7. Public Persona & Leadership Style:**\n*   Modi is known for his charismatic oratory, strong communication skills (including extensive use of social media), and a firm, decisive leadership style. He often projects an image of a strong nationalist leader focused on development and good governance.\n\n**8. Significant Events & Controversies:**\n*   His tenure has been marked by both significant reforms and controversies, such as the abrogation of Article 370 in Jammu and Kashmir, the Citizenship Amendment Act (CAA), and debates surrounding economic policies and social issues.\n*   The 2002 Gujarat riots, which occurred during his time as Chief Minister, remain a significant point of discussion, although he was cleared of wrongdoing by a Special Investigation Team appointed by the Supreme Court of India.\n\nViews on his policies and impact are varied and often subjects of intense debate both within India and internationally.",
+        "model": "gemini-2.5-flash",
+        "timestamp": "2026-06-06T10:24:17.057Z"
+      }
+    ],
+    "createdAt": "2026-06-06T10:23:46.160Z",
+    "updatedAt": "2026-06-06T10:24:17.057Z"
+  }
+]

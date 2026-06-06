@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
-import fs from 'fs/promises';
-import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -81,33 +79,49 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Ensure uploads directory exists
-    const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
-    try {
-      await fs.access(uploadsDir);
-    } catch {
-      await fs.mkdir(uploadsDir, { recursive: true });
-    }
-
-    // Generate unique filename
+    // Generate safe unique filename
     const uniqueId = uuidv4();
     const safeFilename = `${uniqueId}.${ext}`;
-    const filePath = path.join(uploadsDir, safeFilename);
 
-    // Write file to disk
-    const buffer = Buffer.from(await file.arrayBuffer());
-    await fs.writeFile(filePath, buffer);
+    // check if Vercel Blob token is present
+    if (process.env.BLOB_READ_WRITE_TOKEN) {
+      const { put } = await import('@vercel/blob');
+      const blob = await put(safeFilename, file, { access: 'public' });
+      return NextResponse.json(
+        {
+          url: blob.url,
+          name: originalName,
+          type: file.type,
+          size: file.size,
+        },
+        { status: 201 }
+      );
+    } else {
+      // Fallback to local files for local development when not on Vercel
+      const fs = (await import('fs/promises')).default;
+      const path = (await import('path')).default;
+      const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
+      
+      try {
+        await fs.access(uploadsDir);
+      } catch {
+        await fs.mkdir(uploadsDir, { recursive: true });
+      }
 
-    // Return file info
-    return NextResponse.json(
-      {
-        url: `/uploads/${safeFilename}`,
-        name: originalName,
-        type: file.type,
-        size: file.size,
-      },
-      { status: 201 }
-    );
+      const filePath = path.join(uploadsDir, safeFilename);
+      const buffer = Buffer.from(await file.arrayBuffer());
+      await fs.writeFile(filePath, buffer);
+
+      return NextResponse.json(
+        {
+          url: `/uploads/${safeFilename}`,
+          name: originalName,
+          type: file.type,
+          size: file.size,
+        },
+        { status: 201 }
+      );
+    }
   } catch (error) {
     console.error('Upload error:', error);
     return NextResponse.json(
