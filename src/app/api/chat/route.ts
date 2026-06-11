@@ -66,19 +66,30 @@ export async function POST(request: NextRequest) {
       async start(controller) {
         const encoder = new TextEncoder();
         let fullResponse = '';
+        let fullReasoning = '';
 
         try {
+
           for await (const chunk of streamChat(selectedModel, chatMessages)) {
-            fullResponse += chunk;
-            controller.enqueue(
-              encoder.encode(`data: ${JSON.stringify({ text: chunk })}\n\n`)
-            );
+            if (chunk.reasoning) {
+              fullReasoning += chunk.reasoning;
+              controller.enqueue(
+                encoder.encode(`data: ${JSON.stringify({ reasoning: chunk.reasoning })}\n\n`)
+              );
+            }
+            if (chunk.text) {
+              fullResponse += chunk.text;
+              controller.enqueue(
+                encoder.encode(`data: ${JSON.stringify({ text: chunk.text })}\n\n`)
+              );
+            }
           }
 
           // Save the full assistant message to the conversation
           await addMessage(finalConversationId, {
             role: 'assistant',
             content: fullResponse,
+            reasoning: fullReasoning || undefined,
             model: selectedModel,
           });
 

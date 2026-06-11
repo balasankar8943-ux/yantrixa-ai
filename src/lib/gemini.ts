@@ -1,6 +1,11 @@
 import { GoogleGenAI } from '@google/genai';
+import { OpenAI } from 'openai';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
+const nvidiaClient = new OpenAI({
+  baseURL: 'https://integrate.api.nvidia.com/v1',
+  apiKey: process.env.NVIDIA_API_KEY || '',
+});
 
 // ─── Available Models ────────────────────────────────────────────────────────
 
@@ -23,6 +28,18 @@ export const AVAILABLE_MODELS = [
     description: 'Quick responses',
     icon: '💨',
   },
+  {
+    id: 'nvidia/nemotron-3-ultra-550b-a55b',
+    name: 'Nemotron 3 Ultra',
+    description: 'Nvidia Reasoning Model',
+    icon: '🟢',
+  },
+  {
+    id: 'moonshotai/kimi-k2.6',
+    name: 'Kimi K2.6',
+    description: 'Moonshot AI Long Context Model',
+    icon: '🐉',
+  },
 ];
 
 // ─── Streaming Chat ──────────────────────────────────────────────────────────
@@ -33,7 +50,40 @@ import path from 'path';
 export async function* streamChat(
   model: string,
   messages: { role: string; content: string; attachments?: { name: string; type: string; url: string }[] }[]
-): AsyncGenerator<string> {
+): AsyncGenerator<{ text?: string; reasoning?: string }> {
+  if (model.startsWith('nvidia/') || model.startsWith('moonshotai/')) {
+    const completion = (await nvidiaClient.chat.completions.create({
+      model,
+      messages: messages.map((msg) => ({
+        role: msg.role === 'assistant' ? 'assistant' : 'user',
+        content: msg.content,
+      })),
+      temperature: 1,
+      top_p: 0.95,
+      max_tokens: 16384,
+      extra_body: {
+        chat_template_kwargs: { enable_thinking: true },
+        reasoning_budget: 16384,
+      },
+      stream: true,
+    } as any)) as any;
+
+    for await (const chunk of completion) {
+      if (!chunk.choices || chunk.choices.length === 0) continue;
+      const delta = chunk.choices[0].delta as any;
+      const reasoning = delta.reasoning_content;
+      const content = delta.content;
+
+      if (reasoning) {
+        yield { reasoning };
+      }
+      if (content) {
+        yield { text: content };
+      }
+    }
+    return;
+  }
+
   // Convert messages to Gemini content format with multi-modal support
   const contents = await Promise.all(
     messages.map(async (msg) => {
@@ -82,7 +132,7 @@ export async function* streamChat(
 
   for await (const chunk of result) {
     if (chunk.text) {
-      yield chunk.text;
+      yield { text: chunk.text };
     }
   }
 }

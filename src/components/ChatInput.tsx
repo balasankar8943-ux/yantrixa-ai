@@ -14,6 +14,8 @@ const MODELS = [
   { id: 'gemini-2.5-flash', name: 'Gemini 2.5 Flash', icon: '⚡' },
   { id: 'gemini-2.5-pro', name: 'Gemini 2.5 Pro', icon: '🧠' },
   { id: 'gemini-2.0-flash', name: 'Gemini 2.0 Flash', icon: '💨' },
+  { id: 'nvidia/nemotron-3-ultra-550b-a55b', name: 'Nemotron 3 Ultra', icon: '🟢' },
+  { id: 'moonshotai/kimi-k2.6', name: 'Kimi K2.6', icon: '🐉' },
 ];
 
 export default function ChatInput({

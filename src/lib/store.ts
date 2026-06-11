@@ -19,6 +19,7 @@ export interface Message {
   id: string;
   role: 'user' | 'assistant';
   content: string;
+  reasoning?: string;
   attachments?: { name: string; type: string; url: string }[];
   model?: string;
   timestamp: string;

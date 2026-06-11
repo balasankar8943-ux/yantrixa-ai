@@ -16,6 +16,7 @@ interface Message {
   id: string;
   role: 'user' | 'assistant';
   content: string;
+  reasoning?: string;
   timestamp: string;
   model?: string;
   attachments?: MessageAttachment[];
@@ -28,6 +29,7 @@ interface MessageBubbleProps {
 
 export default function MessageBubble({ message, isStreaming }: MessageBubbleProps) {
   const [showTimestamp, setShowTimestamp] = useState(false);
+  const [showThinking, setShowThinking] = useState(true);
   const isUser = message.role === 'user';
 
   const formatTime = (timestamp: string) => {
@@ -121,8 +123,50 @@ export default function MessageBubble({ message, isStreaming }: MessageBubblePro
               : '0 2px 8px rgba(0, 0, 0, 0.2)',
           }}
         >
+          {/* Thought process block */}
+          {message.reasoning && (
+            <div
+              style={{
+                background: 'rgba(255, 255, 255, 0.02)',
+                borderLeft: '2px solid var(--accent-primary)',
+                padding: '10px 14px',
+                borderRadius: '0 8px 8px 0',
+                marginBottom: '14px',
+                fontSize: '0.85rem',
+                color: 'var(--text-secondary)',
+              }}
+            >
+              <div
+                onClick={() => setShowThinking(!showThinking)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  cursor: 'pointer',
+                  fontWeight: 600,
+                  fontSize: '0.8rem',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                  color: 'var(--accent-primary)',
+                  marginBottom: showThinking ? '8px' : '0',
+                  userSelect: 'none',
+                }}
+              >
+                <span>🧠 Thought Process</span>
+                <span style={{ fontSize: '0.8em', opacity: 0.6 }}>
+                  {showThinking ? '(Click to collapse)' : '(Click to expand)'}
+                </span>
+              </div>
+              {showThinking && (
+                <div style={{ whiteSpace: 'pre-wrap', fontFamily: 'var(--font-mono)', opacity: 0.85, lineHeight: '1.5' }}>
+                  {message.reasoning}
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Streaming indicator */}
-          {isStreaming && !message.content ? (
+          {isStreaming && !message.content && !message.reasoning ? (
             <div style={{ display: 'flex', gap: '6px', padding: '4px 0' }}>
               <span className="typing-dot" />
               <span className="typing-dot" />

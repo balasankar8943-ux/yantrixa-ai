@@ -15,6 +15,7 @@ interface Message {
   id: string;
   role: 'user' | 'assistant';
   content: string;
+  reasoning?: string;
   timestamp: string;
   model?: string;
   attachments?: MessageAttachment[];
@@ -30,6 +31,7 @@ export default function ConversationPage() {
   const [selectedModel, setSelectedModel] = useState('gemini-2.5-flash');
   const [isLoading, setIsLoading] = useState(false);
   const [streamingContent, setStreamingContent] = useState('');
+  const [streamingReasoning, setStreamingReasoning] = useState('');
   const [error, setError] = useState<string | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -120,6 +122,7 @@ export default function ConversationPage() {
 
     setMessages((prev) => [...prev, userMessage]);
     setStreamingContent('');
+    setStreamingReasoning('');
 
     try {
       const response = await fetch('/api/chat', {
@@ -144,6 +147,7 @@ export default function ConversationPage() {
 
       const decoder = new TextDecoder();
       let currentStreamingText = '';
+      let currentStreamingReasoning = '';
 
       while (true) {
         const { done, value } = await reader.read();
@@ -155,6 +159,10 @@ export default function ConversationPage() {
         for (const line of lines) {
           try {
             const data = JSON.parse(line.substring(6));
+            if (data.reasoning) {
+              currentStreamingReasoning += data.reasoning;
+              setStreamingReasoning(currentStreamingReasoning);
+            }
             if (data.text) {
               currentStreamingText += data.text;
               setStreamingContent(currentStreamingText);
@@ -173,12 +181,14 @@ export default function ConversationPage() {
         id: Math.random().toString(),
         role: 'assistant',
         content: currentStreamingText,
+        reasoning: currentStreamingReasoning || undefined,
         timestamp: new Date().toISOString(),
         model: modelToUse,
       };
 
       setMessages((prev) => [...prev, finalAssistantMessage]);
       setStreamingContent('');
+      setStreamingReasoning('');
 
       // Refresh sidebar list
       window.dispatchEvent(new Event('refresh-conversations'));
@@ -265,6 +275,7 @@ export default function ConversationPage() {
                 id: 'streaming-assistant',
                 role: 'assistant',
                 content: streamingContent,
+                reasoning: streamingReasoning || undefined,
                 timestamp: new Date().toISOString(),
                 model: selectedModel,
               }}
