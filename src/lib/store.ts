@@ -37,34 +37,34 @@ export interface Conversation {
 
 // ─── MongoDB Connection ────────────────────────────────────────────────────────
 
-const uri = process.env.MONGODB_URI;
-if (!uri) {
-  throw new Error('Please add your MONGODB_URI to .env.local');
-}
-
 let client: MongoClient;
 let clientPromise: Promise<MongoClient>;
 
-if (process.env.NODE_ENV === 'development') {
-  // In development mode, use a global variable so that the value
-  // is preserved across module reloads caused by HMR (Hot Module Replacement).
-  let globalWithMongo = global as typeof globalThis & {
-    _mongoClientPromise?: Promise<MongoClient>;
-  };
-
-  if (!globalWithMongo._mongoClientPromise) {
-    client = new MongoClient(uri);
-    globalWithMongo._mongoClientPromise = client.connect();
+function getMongoClient(): Promise<MongoClient> {
+  const uri = process.env.MONGODB_URI;
+  if (!uri) {
+    throw new Error('Please add your MONGODB_URI to .env.local');
   }
-  clientPromise = globalWithMongo._mongoClientPromise;
-} else {
-  // In production mode, it's best to not use a global variable.
-  client = new MongoClient(uri);
-  clientPromise = client.connect();
+  if (!clientPromise) {
+    if (process.env.NODE_ENV === 'development') {
+      let globalWithMongo = global as typeof globalThis & {
+        _mongoClientPromise?: Promise<MongoClient>;
+      };
+      if (!globalWithMongo._mongoClientPromise) {
+        client = new MongoClient(uri);
+        globalWithMongo._mongoClientPromise = client.connect();
+      }
+      clientPromise = globalWithMongo._mongoClientPromise;
+    } else {
+      client = new MongoClient(uri);
+      clientPromise = client.connect();
+    }
+  }
+  return clientPromise;
 }
 
 async function getCollections() {
-  const mongoClient = await clientPromise;
+  const mongoClient = await getMongoClient();
   const db = mongoClient.db('yantrixa-ai');
   return {
     users: db.collection<User>('users'),
@@ -91,7 +91,6 @@ export async function createUser(data: {
 }): Promise<User> {
   const { users } = await getCollections();
 
-  // Check for duplicate email
   const existing = await users.findOne({ email: data.email.toLowerCase() });
   if (existing) {
     throw new Error('Email already exists');
